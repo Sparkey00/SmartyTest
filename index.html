@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Search</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+    <link href="styles.css" rel="stylesheet">
+</head>
+<body>
+<form id="search-form" method="post" action="results.php">
+    <div id="inner-div">
+        <div id="1">
+            <select name="type[]" required>
+                <option value="" disabled selected>Field...</option>
+                <option value="stars">Stars</option>
+                <option value="followers">Followers</option>
+                <option value="size">Size</option>
+                <option value="forks">Forks</option>
+            </select>
+            <select name="operator[]" required>
+                <option value="" disabled selected>Operator...</option>
+                <option value=">">></option>
+                <option value="<"><</option>
+                <option value="=">=</option>
+            </select>
+            <input type="number" name="value[]">
+            <button type="button" class="delete-button" onClick="DeleteThis(1)">Delete</button>
+        </div>
+    </div>
+    <hr>
+    <button type="button" class="add-button" onclick="AddField()">Add field...</button>
+    <button type="button" class="clear-button" onclick="Clear()">Clear</button>
+    <button type="submit" class="a_submit submit-button">Send</button>
+    <div class="wrapper"></div>
+</form>
+<div class="table-responce"></div>
+<script>
+    var fieldCounter = 2;
+
+    function getDiv(fieldId){
+        return "<div id=\""+fieldId+"\">\n" +
+            "        <select name=\"type[]\" required>\n" +
+            "            <option value=\"\" disabled selected>Field...</option>\n" +
+            "            <option value=\"stars\">Stars</option>\n" +
+            "            <option value=\"followers\">Followers</option>\n" +
+            "            <option value=\"size\">Size</option>\n" +
+            "            <option value=\"forks\">Forks</option>\n" +
+            "        </select>\n" +
+            "        <select name=\"operator[]\" required>\n" +
+            "            <option value=\"\" disabled selected>Operator...</option>\n" +
+            "            <option value=\">\">></option>\n" +
+            "            <option value=\"<\"><</option>\n" +
+            "            <option value=\"=\">=</option>\n" +
+            "        </select>\n" +
+            "        <input type=\"number\" name=\"value[]\">\n" +
+            "        <button type=\"button\" class='delete-button' onClick=\"DeleteThis("+fieldId+")\">Delete</button>\n" +
+            "    </div>"
+    }
+    function AddField() {
+        $('#inner-div').append(getDiv(fieldCounter));
+        fieldCounter+=1;
+    }
+
+    function Clear() {
+        var form = document.getElementById('inner-div');
+        form.innerHTML=getDiv(fieldCounter);
+        fieldCounter+=1;
+    }
+    function DeleteThis(id){
+        var deletedDiv = document.getElementById(id);
+        deletedDiv.parentNode.removeChild(deletedDiv);
+    }
+
+    $('.a_submit').on('click', function (form) {
+        form.preventDefault();
+        var form = JSON.stringify($('input,number,select', $('#search-form')).serializeArray());
+        $.ajax({
+            type: "POST",
+            url: "results.php",
+            data: { searchform: form },
+            beforeSend: function() {
+                $('.table-responce').html("Loading...");
+            },
+        }).done(function( msg ) {
+            $('.table-responce').html(msg);
+        });
+
+    });
+</script>
+</body>
+</html>
